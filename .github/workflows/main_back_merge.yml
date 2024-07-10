@@ -1,0 +1,59 @@
+name: Backmerge from Main
+concurrency:
+  group: main-backmerge
+  cancel-in-progress: false
+on:
+  workflow_run:
+    workflows: ["CI on code push"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  build:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    name: "Back-merge from Main"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Back-merge"
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ vars.CICDTOKEN }}
+          script: |
+            const { repo, owner } = context.repo;
+            const head = 'main';
+            const branchesRequest = await github.request('GET /repos/{owner}/{repo}/branches', {
+              owner,
+              repo
+            });
+            const branches = branchesRequest.data;
+
+            let base = 'develop';
+            const pattern = /\d+\.\d+\.\d+-RC/g;
+            branches.forEach((branch) => {
+              if(branch.name.match(pattern)) {
+                console.log(`RC Branch found, using ${branch.name} as base.`);
+                base = branch.name;
+              }
+            });
+
+            console.log(`Merging ${head} into ${base}.`);
+            let mergeSuccess = false;
+            try{
+              const mergeRequest = await github.request('POST /repos/{owner}/{repo}/merges', {
+                owner,
+                repo,
+                base,
+                head,
+                commit_message: '[Auto] Back-merge'
+              });
+              mergeSuccess = true;
+            } catch(error) {
+              console.log('Merge Failed.')
+              console.log(error);
+            }
+
+            if(mergeSuccess === false) {
+              core.setFailed(`Failed to back-merge ${head} into ${base}`);
+            } else {
+              console.log(`Merge ${head} into ${base} complete.`);
+            }

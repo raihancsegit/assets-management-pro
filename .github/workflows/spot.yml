@@ -1,0 +1,40 @@
+name: 🚀 Deploy branch to server
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Input Branch name"
+        required: true
+
+      environment:
+        type: choice
+        description: "Environment"
+        required: true
+        options:
+        - prod
+
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.inputs.branch }}
+
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: 'ftp.lazimdairy.com'
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASS }}
+        protocol: ftp
+        port: ${{ secrets.FTP_PORT }}
+        local-dir: './amp-app/'
+        server-dir: './account/'
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**

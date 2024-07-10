@@ -1,0 +1,36 @@
+.card-body.listing-card-body {
+    padding: 15px;
+    height: 500px;
+    overflow: scroll;
+}
+.listing-card-body .listing-item {
+    margin-bottom: 30px;
+}
+.listing-card-body .listing-table tbody tr {
+    border: 1px solid #ddd;
+}
+
+.listing-card-body .listing-table td {
+    min-width: 130px;
+    padding: 5px 10px;
+}
+
+.listing-card-body .listing-table th.date-index {
+    display: inline-flex;
+    background: #ddd;
+    padding: 4px 25px;
+    margin: 0;
+    width: 160px;
+}
+
+.listing-card-body .listing-table .small-text {
+    font-size: 10px;
+}
+
+.listing-card-body .listing-table td.amount-cell {
+    text-align: right;
+}
+.listing-card-body .listing-table td.category-cell {
+    width: 230px;
+    text-align: left;
+}
